@@ -1,0 +1,13 @@
+{
+  "name": "test",
+  "version": "0.0.0",
+  "private": true,
+  "scripts": {
+    "start": "node ./bin/www"
+  },
+  "dependencies": {
+    "puppeteer": "^1.15.0",
+    "aws-sdk": "^2.452.0",
+    "s3fs": "^2.5.0"
+  }
+}
