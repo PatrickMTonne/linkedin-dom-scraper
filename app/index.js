@@ -19,7 +19,7 @@ const configureAws = async() => {
 const restart = async(browser) => {
     browser.close();
     await timeout(3000);
-    await start()
+    await exports.start();
 };
 
 const logIn = async(browser, page) => {
@@ -82,33 +82,23 @@ const setFeedToMostRecent = async(page) => {
 const getDomAndUpload = async(page) => {
     const content = await page.content();
     const date = Date.now();
-    const fileName = `${date}.html`;
-    await fs.writeFile(fileName, content, (err) => {
-        if (err) throw err;
-        uploadFile(fileName);
-    });
-};
-
-const uploadFile = (file) => {
+    const fileName = `${date}`;
+    const params = {
+        Bucket: awsConfig.credentials.bucket,
+        Key: fileName,
+        Body: content
+    };
     const s3 = new aws.S3();
-    fs.readFile(file, 'utf-8', (err, data) => {
-        if (err) throw err;
-        const params = {
-            Bucket: awsConfig.credentials.bucket,
-            Key: file,
-            Body: data
-        };
-        s3.upload(params, function(s3Err, data) {
-            if (s3Err) throw s3Err;
-            console.log(`File uploaded successfully at ${data.Location}`)
-        });
+    s3.upload(params, function(s3Err, data) {
+        if (s3Err) throw s3Err;
+        console.log(`File uploaded successfully at ${data.Location}`)
     });
 };
 
-const goToSectionAndGetDom = async(page, urls) => {
+const goToSectionAndGetDom = async(browser, page, urls) => {
     for (let i = 0; i<urls.length; ++i) {
         let url = urls[i];
-        await goToSiteSection(page, url);
+        await goToSiteSection(browser, page, url);
         await getDomAndUpload(page);
     }
 };
@@ -151,7 +141,7 @@ const scrapeUrls = async(browser, page, path) => {
         urls.push(line);
     });
     await rl.on('close', async () => {
-        await goToSectionAndGetDom(page, urls);
+        await goToSectionAndGetDom(browser, page, urls);
         await browser.close()
     });
 };
