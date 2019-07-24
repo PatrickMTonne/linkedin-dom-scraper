@@ -7,7 +7,7 @@ const awsConfig = require('../config/aws_config.json');
 const linkedInConfig = require('../config/linkedin_config');
 
 
-const configureAws = async () => {
+const configureAws = async() => {
     aws.config.setPromisesDependency();
     aws.config.update({
         accessKeyId: awsConfig.credentials.access_key_ID,
@@ -16,16 +16,13 @@ const configureAws = async () => {
     });
 };
 
-const logIn = async (page) => {
-    if (await page.$('a.nav__button-secondary') !== null) {
-        try {
-            await Promise.all([page.waitForNavigation('domcontentloaded'),
-                page.click('a.nav__button-secondary')
-            ]);
-        } catch (err) {
-            console.log(err);
-            await logIn(page);
-        }
+const restart = async(browser) => {
+    browser.close();
+    await timeout(3000);
+    await start()
+};
+
+const logIn = async(browser, page) => {
         try {
             const userNameHandle = await page.$('#username');
             const passWordHandle = await page.$('#password');
@@ -38,38 +35,35 @@ const logIn = async (page) => {
             await Promise.all([page.waitForNavigation(),
                 page.click('button.btn__primary--large')
         ])} catch (err) {
-            console.log('uh oh boi');
-            await logIn(page);
+            await restart(browser);
         }
-    } else {
-        console.log('could not log in');
-    }
 };
 
-const goToLinkedIn = async (page) => {
+const goToLinkedIn = async(page) => {
     try {
         await Promise.all([page.waitForNavigation('domcontentloaded'),
-            page.goto('https://www.linkedin.com/', 'domcontentloaded')
+            page.goto('https://www.linkedin.com/login', 'domcontentloaded')
         ]);
     } catch (err) {
         console.log(err);
     }
 };
 
-const goToSiteSection = async (page, url) => {
+const goToSiteSection = async(browser, page, url) => {
         try {
             await Promise.all([page.goto(url, 'domcontentloaded'),
             setFeedToMostRecent(page),
         ]);
-            await Promise.all([page.waitFor(getRandomArbitrary(5000, 10000)),
+            await Promise.all([page.waitFor(getRandomArbitrary(6000, 10000)),
             scroll(page)
         ])
         } catch (err) {
             console.log(err);
+            await restart(browser)
         }
 };
 
-const setFeedToMostRecent = async (page) => {
+const setFeedToMostRecent = async(page) => {
     await timeout(3000);
     try {
         await Promise.all([page.waitForSelector('.sort-dropdown__icon'),
@@ -85,7 +79,7 @@ const setFeedToMostRecent = async (page) => {
     await timeout(2000)
 };
 
-const getDomAndUpload = async (page) => {
+const getDomAndUpload = async(page) => {
     const content = await page.content();
     const date = Date.now();
     const fileName = `${date}.html`;
@@ -111,16 +105,15 @@ const uploadFile = (file) => {
     });
 };
 
-const goToSectionAndGetDom = async (page, urls) => {
+const goToSectionAndGetDom = async(page, urls) => {
     for (let i = 0; i<urls.length; ++i) {
-        await console.log(page);
         let url = urls[i];
         await goToSiteSection(page, url);
         await getDomAndUpload(page);
     }
 };
 
-const scroll = async (page) => {
+const scroll = async(page) => {
     await page.evaluate(() => {
             const scroll = () => {
             let postDates = $('#organization-feed').find('.feed-shared-actor__sub-description');
@@ -147,7 +140,7 @@ const getRandomArbitrary = (min, max) => {
     return Math.random() * (max - min) + min;
 };
 
-const readUrls = async (page, path) => {
+const scrapeUrls = async(browser, page, path) => {
     const instream = await fs.createReadStream(path);
     const outstream = await new stream;
     const rl = await readline.createInterface(instream, outstream);
@@ -159,11 +152,11 @@ const readUrls = async (page, path) => {
     });
     await rl.on('close', async () => {
         await goToSectionAndGetDom(page, urls);
+        await browser.close()
     });
 };
 
-
-(async () => {
+exports.start = async() => {
     await configureAws();
     const browser = await puppeteer.launch({
         headless: false
@@ -171,7 +164,8 @@ const readUrls = async (page, path) => {
     const page = await browser.newPage();
     await page.setUserAgent('Mozilla/5.0 (Macintosh; Intel Mac OS X 10_12_5) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/73.0.3683.103 Safari/537.36');
     await goToLinkedIn(page);
-    await logIn(page);
-    await readUrls(page,'urls.txt');
-    // await browser.close();
-})();
+    await logIn(browser, page);
+    await scrapeUrls(browser, page,'urls.txt');
+};
+
+exports.start();
