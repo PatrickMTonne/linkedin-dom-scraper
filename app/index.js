@@ -3,22 +3,21 @@ const aws = require('aws-sdk');
 const fs = require("fs");
 const readline = require('readline');
 const stream = require('stream');
-const awsConfig = require('../config/aws_config.json');
-const linkedInConfig = require('../config/linkedin_config');
+const secrets = require('../config/secrets.json');
 
 
 const configureAws = async() => {
     aws.config.setPromisesDependency();
     aws.config.update({
-        accessKeyId: awsConfig.credentials.access_key_ID,
-        secretAccessKey: awsConfig.credentials.secret_access_key,
-        region: awsConfig.credentials.region
+        accessKeyId: secrets.aws.access_key_ID,
+        secretAccessKey: secrets.aws.secret_access_key,
+        region: secrets.aws.region
     });
 };
 
 const restart = async(browser) => {
     browser.close();
-    await timeout(3000);
+    await timeout(getRandomArbitrary(3000, 4000));
     await exports.start();
 };
 
@@ -26,10 +25,10 @@ const logIn = async(browser, page) => {
         try {
             const userNameHandle = await page.$('#username');
             const passWordHandle = await page.$('#password');
-            await userNameHandle.type(linkedInConfig.credentials.username, {
+            await userNameHandle.type(secrets.linkedin.username, {
                 delay: 10
             });
-            await passWordHandle.type(linkedInConfig.credentials.password, {
+            await passWordHandle.type(secrets.linkedin.password, {
                 delay: 10
             });
             await Promise.all([page.waitForNavigation(),
@@ -52,8 +51,15 @@ const goToLinkedIn = async(page) => {
 const goToSiteSection = async(browser, page, url) => {
         try {
             await Promise.all([page.goto(url, 'domcontentloaded'),
-            setFeedToMostRecent(page),
         ]);
+            if (page.url() !== url) {
+                await timeout(getRandomArbitrary(3000, 4000));
+                await page.evaluate(() => {
+                    const homeNavButton = $('.org-page-navigation__item-anchor:contains("Home")');
+                    homeNavButton.click();
+                });
+            }
+            await setFeedToMostRecent(page);
             await Promise.all([page.waitFor(getRandomArbitrary(6000, 10000)),
             scroll(page)
         ])
@@ -64,27 +70,28 @@ const goToSiteSection = async(browser, page, url) => {
 };
 
 const setFeedToMostRecent = async(page) => {
-    await timeout(3000);
+    await timeout(getRandomArbitrary(3000, 4000));
     try {
         await Promise.all([page.waitForSelector('.sort-dropdown__icon'),
         page.click('.sort-dropdown__icon')
     ])
     } catch(e) {
-        await timeout(5000);
+        await timeout(getRandomArbitrary(4000, 5000));
         await setFeedToMostRecent(page)
     }
     await page.evaluate(() => {
         $('.sort-dropdown__list-item-button:contains(Recent)').click();
     });
-    await timeout(2000)
+    await timeout(getRandomArbitrary(2000, 3000))
 };
 
 const getDomAndUpload = async(page) => {
     const content = await page.content();
     const date = Date.now();
-    const fileName = `${date}`;
+    const name = await getName(page);
+    const fileName = `${date}_${name}`;
     const params = {
-        Bucket: awsConfig.credentials.bucket,
+        Bucket: secrets.aws.bucket,
         Key: fileName,
         Body: content
     };
@@ -104,22 +111,27 @@ const goToSectionAndGetDom = async(browser, page, urls) => {
 };
 
 const scroll = async(page) => {
-    await page.evaluate(() => {
+    try {
+        await page.evaluate(() => {
             const scroll = () => {
             let postDates = $('#organization-feed').find('.feed-shared-actor__sub-description');
             let postDateLength = postDates.length;
-            let lastEntryDate = postDates[postDateLength-1].textContent.trim();
-
-            const timeRegex = /(\d+)(m|h|d)/;
-            let match = lastEntryDate.match(timeRegex);
-            if (!match){
-                return;
+            if (postDateLength !== 0) {
+                let lastEntryDate = postDates[postDateLength-1].textContent.trim();
+                const timeRegex = /(\d+)(m|h|d)/;
+                let match = lastEntryDate.match(timeRegex);
+                if (!match){
+                    return;
+                }
+                window.scrollTo(0, document.body.scrollHeight);
+                setTimeout(scroll, 2000)
             }
-            window.scrollTo(0, document.body.scrollHeight);
-            setTimeout(scroll, 2000)
         };
         scroll();
-    });
+        });
+    } catch(e) {
+        console.log(e);
+    }
 };
 
 async function timeout(ms) {
@@ -128,6 +140,13 @@ async function timeout(ms) {
 
 const getRandomArbitrary = (min, max) => {
     return Math.random() * (max - min) + min;
+};
+
+const getName = async(page) => {
+    return page.evaluate(() => {
+        let rawText = document.querySelector('.org-top-card-summary__title').textContent.trim();
+        return rawText.split(' ').join('_')
+    });
 };
 
 const scrapeUrls = async(browser, page, path) => {
