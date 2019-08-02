@@ -97,8 +97,7 @@ const setFeedToMostRecent = async (page) => {
 const getDomAndUpload = async (page) => {
     const content = await page.content();
     const date = Date.now();
-    const name = await getName(page);
-    const fileName = `${date}_${name}`;
+    const fileName = `${date}`;
     const params = {
         Bucket: secrets.aws.bucket,
         Key: fileName,
@@ -119,10 +118,7 @@ const goToSectionAndGetDom = async (browser, page, urls, count=0) => {
             await goToSiteSection(browser, page, url);
         } catch (err) {
             console.log(err);
-            console.log('it reached the top boi');
             await goToSectionAndGetDom(browser, page, urls, ++count)
-            // let url = urls[i + 1];
-            // await goToSiteSection(browser, page, url, i)
         }
         await getDomAndUpload(page);
     }
@@ -160,13 +156,6 @@ const getRandomArbitrary = (min, max) => {
     return Math.random() * (max - min) + min;
 };
 
-const getName = async (page) => {
-    return page.evaluate(() => {
-        let rawText = document.querySelector('.org-top-card-summary__title').textContent.trim();
-        return rawText.split(' ').join('_')
-    });
-};
-
 const scrapeUrls = async (browser, page, path) => {
     const instream = await fs.createReadStream(path);
     const outstream = await new stream;
@@ -186,7 +175,7 @@ const scrapeUrls = async (browser, page, path) => {
 exports.start = async () => {
     await configureAws();
     const browser = await puppeteer.launch({
-        headless: false
+        headless: true
     });
     const page = await browser.newPage();
     await page.setUserAgent('Mozilla/5.0 (Macintosh; Intel Mac OS X 10_12_5) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/73.0.3683.103 Safari/537.36');
