@@ -8,11 +8,7 @@ const secrets = require('../config/secrets.json');
 
 const configureAws = async () => {
     aws.config.setPromisesDependency();
-    aws.config.update({
-        accessKeyId: secrets.aws.access_key_ID,
-        secretAccessKey: secrets.aws.secret_access_key,
-        region: secrets.aws.region
-    });
+    aws.config.credentials = new aws.SharedIniFileCredentials({profile: 'default'})
 };
 
 const restart = async (browser) => {
@@ -175,7 +171,8 @@ const scrapeUrls = async (browser, page, path) => {
 exports.start = async () => {
     await configureAws();
     const browser = await puppeteer.launch({
-        headless: true
+        headless: true,
+        args: ['--no-sandbox']
     });
     const page = await browser.newPage();
     await page.setUserAgent('Mozilla/5.0 (Macintosh; Intel Mac OS X 10_12_5) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/73.0.3683.103 Safari/537.36');
