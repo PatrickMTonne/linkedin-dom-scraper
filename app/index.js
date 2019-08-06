@@ -171,7 +171,7 @@ const scrapeUrls = async (browser, page, path) => {
 exports.start = async () => {
     await configureAws();
     const browser = await puppeteer.launch({
-        headless: true,
+        headless: false,
         args: ['--no-sandbox']
     });
     const page = await browser.newPage();
