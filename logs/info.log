@@ -1,0 +1,26 @@
+2019-08-07T22:13:20.853Z info: sup
+2019-08-07T22:19:56.946Z info: File uploaded successfully at https://sam-test-132.s3.amazonaws.com/1565216395831
+2019-08-07T22:20:14.657Z info: File uploaded successfully at https://sam-test-132.s3.amazonaws.com/1565216413770
+2019-08-07T22:21:52.960Z info: File uploaded successfully at https://sam-test-132.s3.amazonaws.com/1565216512342
+2019-08-07T22:22:11.230Z info: File uploaded successfully at https://sam-test-132.s3.amazonaws.com/1565216530697
+2019-08-07T22:22:12.752Z warn: Url led to personal feed
+2019-08-07T22:22:14.963Z warn: Url led to personal feed
+2019-08-07T22:35:02.188Z info: 0: https://www.linkedin.com/authwall?trk=ripf&trkInfo=AQHs9B_u02Qv6QAAAWDm_FoQrgTsR8Y8R04HDJ4PBtuBPBfbexWNUGlDkaiiV5ABuh1hTPeSgpwnLmaQ_OyLLoPAOShwINIweX55f117-B-9qXCWUNCKwDNGNb4XLMqqTqgE5Nc=&originalReferer=&sessionRedirect=https%3A%2F%2Fwww.linkedin.com%2Fcompany%2Ftoast-inc%2F
+2019-08-07T22:35:19.544Z info: 1: https://www.linkedin.com/authwall?trk=ripf&trkInfo=AQGjdDljCHMRawAAAWDXLwiAIBdr2zt__VEx7rfILa86A69ZJ9x6x2JMFxWSmIGlaJaWFH6Q8Lvpfgme0j8xz2KkW1SbGDnikqGWDvpH0SKpSFhieS5R7mC442GZCCyEKFmhZAA=&originalReferer=&sessionRedirect=https%3A%2F%2Fwww.linkedin.com%2Fcompany%2Fvidyard%2F
+2019-08-07T22:35:23.338Z info: File uploaded successfully at https://sam-test-132.s3.amazonaws.com/1565217319493
+2019-08-07T22:35:38.106Z info: 2: https://www.linkedin.com/start/join?session_redirect=https%3A%2F%2Fwww.linkedin.com%2Fcompany%2Fwistia&source=D8E90337EA&trk=login_reg_redirect
+2019-08-07T22:35:38.538Z info: File uploaded successfully at https://sam-test-132.s3.amazonaws.com/1565217338097
+2019-08-07T22:35:40.502Z warn: Url led to personal feed
+2019-08-07T22:35:40.502Z warn: Url led to personal feed
+2019-08-07T22:35:40.503Z info: 3: https://www.linkedin.com/start/join?session_redirect=https%3A%2F%2Fwww.linkedin.com%2Fcompany%2Fwistia&source=D8E90337EA&trk=login_reg_redirect
+2019-08-07T22:35:43.414Z warn: Url led to personal feed
+2019-08-07T22:35:43.414Z warn: Url led to personal feed
+2019-08-07T22:35:43.414Z info: 4: https://www.linkedin.com/authwall?trk=ripf&trkInfo=AQHZT4Ccu2Pi0gAAAWDXOA0YylB7Z9rgP02_XWSmEvZOqy9YxywvNx_xJfApHJ6aqvh8sug5svT8wp5S1MH39tjd7T5i0oVLpvt_hhIgiMMAJuHj16s5BJwTh83f_pLQNE_BwuM=&originalReferer=&sessionRedirect=https%3A%2F%2Fwww.linkedin.com%2Fcompany%2F167813%2F
+2019-08-07T22:36:02.921Z info: 5: https://www.linkedin.com/authwall?trk=ripf&trkInfo=AQHsnQwAYcojNgAAAWDXLuFwnXIqiFvrSVPSqNMrLyL-0TwnAUh6ZCQXCqXAX79HFG8jPhDzqiMFYcqu4qH87gHOGSN_quxpJiClTt_1ocQmbpNW4qxeTHHJFynlbnt_hA727io=&originalReferer=&sessionRedirect=https%3A%2F%2Fwww.linkedin.com%2Fcompany%2Fkaltura%2F
+2019-08-07T22:36:03.502Z info: File uploaded successfully at https://sam-test-132.s3.amazonaws.com/1565217362916
+2019-08-07T22:36:22.227Z info: 6: https://www.linkedin.com/authwall?trk=ripf&trkInfo=AQF48tk5-MIr5QAAAWDXLsYYplGLBTaOnllfAPxkz2yupkDvryIv7eQ_6RWvmkYAc78HZkg7lZ4K7T5XgzIT0ekUkBgoGFe93RH2Odx7K9jPfEHIUPLY6KIqZhzGjO5jKJVWw-s=&originalReferer=&sessionRedirect=https%3A%2F%2Fwww.linkedin.com%2Fcompany%2Fjwplayer%2F
+2019-08-07T22:36:22.724Z info: File uploaded successfully at https://sam-test-132.s3.amazonaws.com/1565217382222
+2019-08-08T16:46:28.703Z error: uncaughtException: ENOENT: no such file or directory, open 'urls.txt'
+Error: ENOENT: no such file or directory, open 'urls.txt'
+2019-08-08T18:42:37.549Z error: uncaughtException: ENOENT: no such file or directory, open 'urls.txt'
+Error: ENOENT: no such file or directory, open 'urls.txt'

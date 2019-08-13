@@ -3,6 +3,7 @@ const aws = require('aws-sdk');
 const fs = require("fs");
 const readline = require('readline');
 const stream = require('stream');
+const logger = require('../utils/logger.js');
 const secrets = require('../config/secrets.json');
 
 
@@ -31,6 +32,7 @@ const logIn = async (browser, page) => {
             page.click('button.btn__primary--large')
         ])
     } catch (err) {
+        logger.info(err);
         await restart(browser);
     }
 };
@@ -41,7 +43,7 @@ const goToLinkedIn = async (page) => {
             page.goto('https://www.linkedin.com/login', 'domcontentloaded')
         ]);
     } catch (err) {
-        console.log(err);
+        logger.warn(err);
     }
 };
 
@@ -68,9 +70,9 @@ const goToSiteSection = async (browser, page, url) => {
         await setFeedToMostRecent(page);
         await Promise.all([page.waitFor(getRandomArbitrary(6000, 10000)),
             scroll(page)
-        ])
+        ]);
     } catch (err) {
-        console.log(err);
+        logger.warn(err);
         throw err
     }
 };
@@ -81,7 +83,8 @@ const setFeedToMostRecent = async (page) => {
         await Promise.all([page.waitForSelector('.sort-dropdown__icon'),
             page.click('.sort-dropdown__icon')
         ])
-    } catch (e) {
+    } catch (err) {
+        logger.warn(err) ;
         throw Error('issue setting feed to most recent');
     }
     await page.evaluate(() => {
@@ -102,18 +105,18 @@ const getDomAndUpload = async (page) => {
     const s3 = new aws.S3();
     s3.upload(params, function(s3Err, data) {
         if (s3Err) throw s3Err;
-        console.log(`File uploaded successfully at ${data.Location}`)
+        logger.info(`File uploaded successfully at ${data.Location}`)
     });
 };
 
 const goToSectionAndGetDom = async (browser, page, urls, count=0) => {
     for (let i = count; i < urls.length; ++count) {
-        console.log(count);
         let url = urls[count];
+        logger.info(`${count}: ${url}`);
         try {
             await goToSiteSection(browser, page, url);
         } catch (err) {
-            console.log(err);
+            logger.warn(err);
             await goToSectionAndGetDom(browser, page, urls, ++count)
         }
         await getDomAndUpload(page);
@@ -139,8 +142,8 @@ const scroll = async (page) => {
             };
             scroll();
         });
-    } catch (e) {
-        console.log(e);
+    } catch (err) {
+        logger.info(err)
     }
 };
 
@@ -171,7 +174,7 @@ const scrapeUrls = async (browser, page, path) => {
 exports.start = async () => {
     await configureAws();
     const browser = await puppeteer.launch({
-        headless: false,
+        headless: true,
         args: ['--no-sandbox']
     });
     const page = await browser.newPage();

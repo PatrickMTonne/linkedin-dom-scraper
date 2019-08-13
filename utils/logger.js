@@ -1,51 +1,44 @@
 const { createLogger, format, transports } = require('winston');
-const { combine, timestamp, label, prettyPrint } = format;
+const { combine, timestamp, printf } = format;
+
+const options = {
+  file: {
+    level: 'info',
+    filename: '../logs/info.log',
+    handleExceptions: true,
+    json: true,
+    maxsize: 5242880, // 5MB
+    maxFiles: 5,
+    colorize: false,
+  },
+  console: {
+    level: 'debug',
+    handleExceptions: true,
+    json: false,
+    colorize: true,
+  },
+};
+
+const myFormat = printf(({ level, message, timestamp }) => {
+  return `${timestamp} ${level}: ${message}`;
+});
 
 const logger = createLogger({
   format: combine(
-    label({ label: 'right meow!' }),
-    timestamp(),
-    prettyPrint()
-  ),
-  transports: [new transports.Console()]
+      timestamp(),
+      myFormat
+    ),
+  transports: [
+    new transports.File(options.file),
+    new transports.Console(options.console)
+  ],
+  exitOnError: false, // do not exit on handled exceptions
 });
 
-logger.log({
-  level: 'info',
-  message: 'What time is the testing at?'
-});
+logger.stream = {
+  write: function(message, encoding) {
+    logger.info(message);
+  },
+};
 
 module.exports = logger;
-
-
-
-
-
-
-
-
-
-
-// const aws = require('aws-sdk');
-//
-// aws.config.update({region: 'us-east-1'});
-//
-// const cw = new aws.CloudWatch({apiVersion: '2010-08-01'});
-//
-// const params = {
-//   Dimensions: [
-//     {
-//       Name: 'LogGroupName',
-//     },
-//   ],
-//   MetricName: 'IncomingLogEvents',
-//   Namespace: 'AWS/Logs'
-// };
-//
-// cw.listMetrics(params, function(err, data) {
-//   if (err) {
-//     console.log("Error", err);
-//   } else {
-//     console.log("Metrics", JSON.stringify(data.Metrics));
-//   }
-// });
